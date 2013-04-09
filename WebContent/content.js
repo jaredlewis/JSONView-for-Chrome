@@ -41,10 +41,27 @@ function displayError(error, loc, offset) {
 
 function displayUI(theme, html) {
 	var statusElement, toolboxElement, expandElement, reduceElement, viewSourceElement, optionsElement, content = "";
+
+    //Build the content to insert
 	content += '<link rel="stylesheet" type="text/css" href="' + chrome.extension.getURL("jsonview-core.css") + '">';
 	content += "<style>" + theme + "</style>";
 	content += html;
-	document.body.innerHTML = content;
+
+    //Determine where to put the content, replace the body or the pre tag
+    var contentEl = document.body;
+    if(document.body.childNodes.length && document.body.childNodes[0].tagName == "PRE"){
+        contentEl = document.body.childNodes[0];
+    }
+    if(contentEl != document.body){
+        contentEl.outerHTML = content;
+    }
+    else {
+        contentEl.innerHTML = content;
+    }
+
+    //Get the jsonEl
+    var jsonEl = document.getElementById('json');
+
 	collapsers = document.querySelectorAll("#json .collapsible .collapsible");
 	statusElement = document.createElement("div");
 	statusElement.className = "status";
@@ -71,11 +88,11 @@ function displayUI(theme, html) {
 	toolboxElement.appendChild(reduceElement);
 	toolboxElement.appendChild(viewSourceElement);
 	toolboxElement.appendChild(optionsElement);
-	document.body.appendChild(toolboxElement);
-	document.body.addEventListener('click', ontoggle, false);
-	document.body.addEventListener('mouseover', onmouseMove, false);
-	document.body.addEventListener('click', onmouseClick, false);
-	document.body.addEventListener('contextmenu', onContextMenu, false);
+	jsonEl.appendChild(toolboxElement);
+    jsonEl.addEventListener('click', ontoggle, false);
+    jsonEl.addEventListener('mouseover', onmouseMove, false);
+    jsonEl.addEventListener('click', onmouseClick, false);
+    jsonEl.addEventListener('contextmenu', onContextMenu, false);
 	expandElement.addEventListener('click', onexpand, false);
 	reduceElement.addEventListener('click', onreduce, false);
 	optionsElement.addEventListener("click", function() {
